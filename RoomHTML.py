@@ -27,9 +27,10 @@ for d in re.findall('>[0-9]+<', week_html):
 date = re.search(WEEK_PICKER + '.*?<', week_html).group(0)[len(WEEK_PICKER)+1: -1]
 day = week_days.index(date)
 
-print date
-print week_days
-print day
+# print date
+# print week_days
+# print day
+
 
 post_week = re.search('value=".*?"', week_html).group(0)[7:-1]
 # print post_week
@@ -62,7 +63,7 @@ start = timeit.default_timer()
 data = {'radio_week': post_week,
         'chk_room_info': 'Y',
         'chk_room_pics': 'Y',
-        'sel_day': day,
+        'sel_day': day + 1,
         'chk_rooms[]': post_rooms,
         'sbmt_display': 'Display'}
 
@@ -112,4 +113,4 @@ stop = timeit.default_timer()
 print "Extract Post Data: %f seconds"%(stop - start)
 start = timeit.default_timer()
 
-print room_data
+# print room_data
