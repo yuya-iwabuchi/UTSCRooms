@@ -1,5 +1,6 @@
 import requests
 import re
+import datetime
 
 
 import timeit
@@ -51,7 +52,7 @@ for room in re.findall('value=".*?"', room_html):
 #               u'MW%20264', u'PO%20101', u'SW%20128', u'SW%20143', u'SW%20309', u'SW%20319',
 #               u'SY%20110']
 
-post_rooms = [u'AA%20208']
+# post_rooms = [u'AA%20208']
 
 # print post_rooms
 
@@ -85,6 +86,7 @@ room_data = {}
 
 for room in re.findall('<h5>.*?<b>University_of_Toronto</b>', post_html, re.DOTALL):
     name = re.search('<h5>.*?</h5>', room).group(0)[4:-5]
+    name = name.split('<br>')[0]    # Sometimes contains contact here
     room_data[name] = {
         'building': re.search('<td>Building: .*?</td>', room).group(0)[14:-5],
         'capacity': re.search('<td>Capacity: .*?</td>', room).group(0)[14:-5],
@@ -110,7 +112,30 @@ for room in re.findall('<h5>.*?<b>University_of_Toronto</b>', post_html, re.DOTA
             room_data[name]['times'].append(re.search('<center>.*?</center>', time).group(0)[8:-9])
 
 stop = timeit.default_timer()
-print "Extract Post Data: %f seconds"%(stop - start)
+print "Extract Post Data: %f seconds" % (stop - start)
 start = timeit.default_timer()
 
 # print room_data
+
+current_time = datetime.datetime.now().strftime('%H:%M').split(':')
+current_time = ['15', '13']
+# print current_time
+current_block_time = [current_time[0], '{0:02}'.format(int(current_time[1])//30 * 30)]
+# print current_block_time
+
+avail_rooms = []
+for name, data in room_data.iteritems():
+    avail_times = 0
+    timer = current_block_time[:]
+    while timer[0] + ':' + timer[1] in data['times']:
+        avail_times += 1
+
+        if timer[1] == '00':
+            timer[1] = '30'
+        else:
+            timer = [str(int(timer[0]) + 1), '00']
+
+    if avail_times != 0:
+        avail_rooms.append([name, avail_times])
+
+print avail_rooms
