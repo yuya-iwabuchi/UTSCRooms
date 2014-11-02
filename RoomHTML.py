@@ -20,20 +20,26 @@ WEEK_PICKER = 'bgcolor="#FFF0F1"'   # Pivot
 
 WEEK_PICKER_RE = '<tr>.*?' + WEEK_PICKER + '.*?</tr>'
 # This would contain the current week with day with the above color
+try:
+    week_html = re.search(WEEK_PICKER_RE, HTML).group(0)
+    week_days = []
+    for d in re.findall('>[0-9]+<', week_html):
+        week_days.append(d[1:-1])
+    date = re.search(WEEK_PICKER + '.*?<', week_html).group(0)[len(WEEK_PICKER)+1: -1]
+    day = week_days.index(date)
+    post_week = re.search('value=".*?"', week_html).group(0)[7:-1]
+except:
+    print 'Could not find the week... Weekends are not supported yet!'
 
-week_html = re.search(WEEK_PICKER_RE, HTML).group(0)
-week_days = []
-for d in re.findall('>[0-9]+<', week_html):
-    week_days.append(d[1:-1])
-date = re.search(WEEK_PICKER + '.*?<', week_html).group(0)[len(WEEK_PICKER)+1: -1]
-day = week_days.index(date)
+    # print 'Trying Thur 30 October 2014...'
+    # post_week = '26:80'
+    # day = 3
+
+    quit()
 
 # print date
 # print week_days
 # print day
-
-
-post_week = re.search('value=".*?"', week_html).group(0)[7:-1]
 # print post_week
 
 post_rooms = []
@@ -71,10 +77,10 @@ data = {'radio_week': post_week,
 r = requests.post(URL, data=data)
 post_html = r.text
 
-#
+
 # f = open('test.html', 'w')
 #
-# f.write(r.text)
+# f.write(post_html)
 #
 # f.close()
 
@@ -118,7 +124,8 @@ start = timeit.default_timer()
 # print room_data
 
 current_time = datetime.datetime.now().strftime('%H:%M').split(':')
-current_time = ['15', '13']
+# current_time = ['15', '13']
+
 # print current_time
 current_block_time = [current_time[0], '{0:02}'.format(int(current_time[1])//30 * 30)]
 # print current_block_time
