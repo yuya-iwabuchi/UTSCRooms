@@ -32,7 +32,7 @@ def collect():
     post_week = re.search('value=".*?"', week_html).group(0)[7:-1]
 
     current_time = datetime.datetime.now().strftime('%H:%M').split(':')
-    current_time = ['14', '00']
+    # current_time = ['14', '00']
     # print current_time
     current_block_time = [current_time[0], '{0:02}'.format(int(current_time[1])//30 * 30)]
 
@@ -109,15 +109,24 @@ def collect():
 
         room_data[name]['times'] = []
         time_html = re.search('<!-- START ROW OUTPUT -->.*?<!-- END ROW OUTPUT -->', room, re.DOTALL).group(0)
-        for time in re.findall('<tr>.*?</tr>', time_html):
-            if '&nbsp;' in time:
-                room_data[name]['times'].append(re.search('<center>.*?</center>', time).group(0)[8:-9])
+        for time in re.findall("<center>[^=]*?colspan='[1-9][0-9]*' rowspan='[1-9][0-9]*'", time_html):
+            t = re.search("<center>.*?</center>", time).group(0)[8:-9].split(':')
+            for block in range(int(re.search("rowspan='[1-9][0-9]*'", time).group(0)[9:-1])):
+
+                room_data[name]['times'].append(
+                    str(int(t[0]) + block//2 + (int(t[1])//30 + block%2) // 2) + ':' + '{0:02}'.format(
+                        ((int(t[1])//30 + block) % 2) * 30))
+
+    # print room_data
 
     avail_rooms = []
     for name, data in room_data.iteritems():
         avail_times = 0
         timer = current_block_time[:]
-        while timer[0] + ':' + timer[1] in data['times']:
+        while timer[0] + ':' + timer[1] not in data['times']:
+            if timer[0] == '25':
+                avail_times = -1
+                break
             avail_times += 1
 
             if timer[1] == '00':
@@ -132,11 +141,16 @@ def collect():
     sorted_list.sort(key=lambda x: x[1])
     sorted_list.reverse()
 
-    print 'Currently Available Rooms:\n%-9s|%9s' % ('Room', 'Until')
-    print '---------|---------'
+    print 'Currently Available Rooms:\n%-9s|%13s' % ('Room', 'Next Class')
+    print '---------|-------------'
     for r in sorted_list:
-        t = str(int(current_block_time[0]) + r[1]//2) + ':' + '{0:02}'.format(int(current_block_time[1]) + r[1]%2)
-        print '%-9s|%9s' % (r[0], t)
+        if r[1] == -1:
+            t = 'None'
+        else:
+            t = str(int(current_block_time[0]) + r[1]//2 + (int(current_block_time[1])//30 + r[1]%2) // 2) + \
+                ':' + \
+                '{0:02}'.format(((int(current_block_time[1])//30 + r[1]) % 2) * 30)
+        print '%-9s|%13s' % (r[0], t)
 
 if __name__ == '__main__':
     collect()
