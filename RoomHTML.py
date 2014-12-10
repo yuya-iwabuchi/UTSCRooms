@@ -6,8 +6,6 @@ import json
 
 import timeit
 
-start = timeit.default_timer()
-
 
 URL = 'https://www.utsc.utoronto.ca/~registrar/scheduling/room_schd'
 HTML = requests.get(URL).text
@@ -18,9 +16,7 @@ WEEK_PICKER_RE = '<tr>.*?' + WEEK_PICKER + '.*?</tr>'
 
 def collect():
 
-    # stop = timeit.default_timer()
-    # print "Initial Download: %f seconds" % (stop - start)
-    # start = timeit.default_timer()
+    start = timeit.default_timer()
 
     week_html = re.search(WEEK_PICKER_RE, HTML).group(0)
     week_days = []
@@ -114,6 +110,7 @@ def collect():
     with open('room_data.json', 'w') as f:
         json.dump(room_data, f)
 
+    return timeit.default_timer() - start
 
 def display(room_data, current_block_time):
 
@@ -137,7 +134,11 @@ def display(room_data, current_block_time):
             avail_rooms.append([name, avail_times])
 
     sorted_list = avail_rooms[:]
-    sorted_list.sort(key=lambda x: x[1])
+
+    sort_by = 1
+    if len(sorted_list) >= 10:
+        sort_by = 0
+    sorted_list.sort(key=lambda x: x[sort_by])
     sorted_list.reverse()
 
     print 'Currently Available Rooms:\n%-9s|%13s' % ('Room', 'Next Class')
@@ -146,9 +147,11 @@ def display(room_data, current_block_time):
         if r[1] == -1:
             t = 'None'
         else:
-            t = str(int(current_block_time[0]) + r[1]//2 + (int(current_block_time[1])//30 + r[1] % 2) // 2) + \
-                ':' + \
-                '{0:02}'.format(((int(current_block_time[1])//30 + r[1]) % 2) * 30)
+            t = str(int(current_block_time[0]) + r[1]//2 + \
+                (int(current_block_time[1])//30 + r[1] % 2) // 2) + \
+                ':' + '{0:02}'.format(((int(current_block_time[1])//30 + \
+                r[1]) % 2) * 30)
+
         print '%-9s|%13s' % (r[0], t)
 
 
@@ -199,6 +202,7 @@ def choose_time(time):
         print 'Invalid Input'
         exit()
 
+
     current_block_time = [current_time[0], '{0:02}'.format(int(current_time[1])//30 * 30)]
 
     print('Time: %s:%s\nBlock Time: %s:%s\n' % (current_time[0], current_time[1],
@@ -206,22 +210,27 @@ def choose_time(time):
     return current_block_time
 
 if __name__ == '__main__':
-
-    with open('room_data.json') as g:
-        data = json.load(g)
-
-    # data['collect'][0] = (datetime.datetime.strptime(data['collect'][0], '%b %d, %Y') - datetime.timedelta(hours = 1)).strftime('%b %d, %Y')
-
-    print 'JSON stored date: %s' % data['collect'][0]
-
-    jsondate = datetime.datetime.strptime(data['collect'][0], '%b %d, %Y')
-    if (jsondate + datetime.timedelta(days = 1)).date() <= datetime.datetime.now().date():
-        print 'The data you have is outdated.\nUpdating data ...',
-        collect()
+    jsondate = None
+    try:
         with open('room_data.json') as g:
             data = json.load(g)
-        print 'done!'
+            print 'JSON stored date: %s' % data['collect'][0]
+            jsondate = datetime.datetime.strptime(data['collect'][0], '%b %d, %Y')
+    except:
+        pass
+    # data['collect'][0] = (datetime.datetime.strptime(data['collect'][0], '%b %d, %Y') - datetime.timedelta(hours = 1)).strftime('%b %d, %Y')
+
+
+    #
+
+    if not jsondate or (jsondate + datetime.timedelta(days = 1)).date() <= datetime.datetime.now().date():
+        print 'The data you have is outdated.\nUpdating data ...',
+        t = collect()
+        with open('room_data.json') as g:
+            data = json.load(g)
+        print 'done! Took %.2fs' % t
         print 'New JSON stored date: %s' % data['collect'][0]
+
 
     custom_time = ''
 
