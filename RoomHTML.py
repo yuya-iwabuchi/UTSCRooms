@@ -7,19 +7,31 @@ import re
 import datetime
 import json
 import timeit
+import os
+import sys
 
 URL = 'https://www.utsc.utoronto.ca/~registrar/scheduling/room_schd'
-HTML = requests.get(URL).text
 WEEK_PICKER = 'bgcolor="#FFF0F1"'   # Pivot
 # This would contain the current week with day with the above color
 WEEK_PICKER_RE = '<tr>.*?' + WEEK_PICKER + '.*?</tr>'
-
 
 def collect():
 
     start = timeit.default_timer()
 
-    week_html = re.search(WEEK_PICKER_RE, HTML).group(0)
+    try:
+        HTML = requests.get(URL).text
+    except requests.exceptions.SSLError:
+        sys.stderr = open(os.devnull, "w")
+        HTML = requests.get(URL, verify=False).text
+        sys.stderr = sys.__stderr__
+
+    try:
+        week_html = re.search(WEEK_PICKER_RE, HTML).group(0)
+    except AttributeError:
+        print 'Error!\nCould not find current day/week. Usage in weekend is currently not supported.'
+        exit()
+
     week_days = []
     for d in re.findall('>[0-9]+<', week_html):
         week_days.append(d[1:-1])
@@ -47,7 +59,6 @@ def collect():
     #               u'SY%20110']
 
     # post_rooms = [u'AA%20208']
-
     # print 'All Rooms:'
     # i = 0
     # for r in post_rooms:
@@ -101,7 +112,7 @@ def collect():
                     str(int(t[0]) + block//2 + (int(t[1])//30 + block % 2) // 2) + ':' + '{0:02}'.format(
                         ((int(t[1])//30 + block) % 2) * 30))
     with open('room_data.json', 'w') as f:
-        json.dump(room_data, f)
+        json.dump(room_data, f, indent=4)
     return timeit.default_timer() - start
 
 
