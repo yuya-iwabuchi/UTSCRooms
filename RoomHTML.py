@@ -15,16 +15,20 @@ WEEK_PICKER = 'bgcolor="#FFF0F1"'   # Pivot
 # This would contain the current week with day with the above color
 WEEK_PICKER_RE = '<tr>.*?' + WEEK_PICKER + '.*?</tr>'
 
+def get_html(url, data=''):
+    try:
+        html = requests.get(url, data=data).text
+    except requests.exceptions.SSLError:
+        sys.stderr = open(os.devnull, "w")
+        html = requests.get(url, verify=False).text
+        sys.stderr = sys.__stderr__
+    return html
+
 def collect():
 
     start = timeit.default_timer()
 
-    try:
-        HTML = requests.get(URL).text
-    except requests.exceptions.SSLError:
-        sys.stderr = open(os.devnull, "w")
-        HTML = requests.get(URL, verify=False).text
-        sys.stderr = sys.__stderr__
+    HTML = get_html(URL)
 
     try:
         week_html = re.search(WEEK_PICKER_RE, HTML).group(0)
@@ -75,8 +79,7 @@ def collect():
             'chk_rooms[]': post_rooms,
             'sbmt_display': 'Display'}
 
-    r = requests.post(URL, data=data)
-    post_html = r.text
+    post_html = get_html(URL, data=data)
 
     room_data = {'collect': [datetime.datetime.now().strftime('%b %d, %Y'), date, day, post_week]}
 
