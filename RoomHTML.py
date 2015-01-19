@@ -11,27 +11,25 @@ import os
 import sys
 
 URL = 'https://www.utsc.utoronto.ca/~registrar/scheduling/room_schd'
-WEEK_PICKER = 'bgcolor="#FFF0F1"'   # Pivot
-# This would contain the current week with day with the above color
-WEEK_PICKER_RE = '<tr>.*?' + WEEK_PICKER + '.*?</tr>'
 
-def get_html(url, data=''):
+
+def get_html(url, data={}):
     try:
-        html = requests.get(url, data=data).text
+        html = requests.post(url, data=data).text
     except requests.exceptions.SSLError:
         sys.stderr = open(os.devnull, "w")
-        html = requests.get(url, verify=False).text
+        html = requests.post(url, data=data, verify=False).text
         sys.stderr = sys.__stderr__
     return html
 
-def collect():
+
+def collect(date):
 
     start = timeit.default_timer()
-
-    HTML = get_html(URL)
+    default_html = get_html(URL)
 
     try:
-        week_html = re.search(WEEK_PICKER_RE, HTML).group(0)
+        week_html = re.search('<tr>.*?' + date + '.*?</tr>', default_html).group(0)
     except AttributeError:
         print 'Error!\nCould not find current day/week. Usage in weekend is currently not supported.'
         exit()
@@ -39,16 +37,14 @@ def collect():
     week_days = []
     for d in re.findall('>[0-9]+<', week_html):
         week_days.append(d[1:-1])
-    date = re.search(WEEK_PICKER + '.*?<', week_html).group(0)[len(WEEK_PICKER) + 1: -1]
     day = week_days.index(date)
     post_week = re.search('value=".*?"', week_html).group(0)[7:-1]
-
     # print 'Date of Month: %s\nPost Week: %s\nWeek Day Index: %s\n' % \
     #       (date, post_week, day)
 
     post_rooms = []
 
-    room_html = re.search('<div id="listRooms".*?</div>', HTML, re.DOTALL).group(0)
+    room_html = re.search('<div id="listRooms".*?</div>', default_html, re.DOTALL).group(0)
     for room in re.findall('value=".*?"', room_html):
         post_rooms.append(room[7:-1])
 
@@ -75,14 +71,13 @@ def collect():
     data = {'radio_week': post_week,
             'chk_room_info': 'Y',
             'chk_room_pics': 'Y',
-            'sel_day': day + 1,
+            'sel_day': str(day + 1),
             'chk_rooms[]': post_rooms,
             'sbmt_display': 'Display'}
 
     post_html = get_html(URL, data=data)
 
     room_data = {'collect': [datetime.datetime.now().strftime('%b %d, %Y'), date, day, post_week]}
-
     for room in re.findall('<h5>.*?<b>University_of_Toronto</b>', post_html, re.DOTALL):
         name = re.search('<h5>.*?</h5>', room).group(0)[4:-5]
         name = name.split('<br>')[0]    # Sometimes contains contact here
@@ -110,7 +105,6 @@ def collect():
         for ti in re.findall("<center>[^=]*?colspan='[1-9][0-9]*' rowspan='[1-9][0-9]*'", time_html):
             t = re.search("<center>.*?</center>", ti).group(0)[8:-9].split(':')
             for block in range(int(re.search("rowspan='[1-9][0-9]*'", ti).group(0)[9:-1])):
-
                 room_data[name]['times'].append(
                     str(int(t[0]) + block//2 + (int(t[1])//30 + block % 2) // 2) + ':' + '{0:02}'.format(
                         ((int(t[1])//30 + block) % 2) * 30))
@@ -226,15 +220,15 @@ def run(time=''):
 
     if not json_date or (json_date + datetime.timedelta(days=1)).date() <= datetime.datetime.now().date():
         print 'The data you have is outdated.\nUpdating data ...',
-        t = collect()
+        date = str(datetime.datetime.now().date().day)
+        t = collect(date)
         with open('room_data.json') as g:
             data = json.load(g)
         print 'done! Took %.2fs' % t
         print 'New JSON stored date: %s' % data['collect'][0]
-
     time = choose_time(time)
     display(data, time)
 
 
 if __name__ == '__main__':
-    run()
+    run(time='1200')
