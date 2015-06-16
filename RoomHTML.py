@@ -43,7 +43,8 @@ def collect(date, day):
     post = get_html(ROOM_URL, data=data).encode('ascii', 'ignore')
     not_found = []
     found = []
-    room_data = {'collect': {'collected_on': datetime.datetime.now().strftime('%b %d, %Y'), 'collected_week_of': date}}
+    room_data = {'collect': {'collected_on': datetime.datetime.now().strftime('%b %d, %Y'),
+                             'collected_week_of': date, 'rooms': rooms}}
     for room in rooms:
         room_regex = ('\"%s":"<table.*?table>' % room)
         try:
