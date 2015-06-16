@@ -23,24 +23,10 @@ def get_html(url, data={}):
         sys.stderr = sys.__stderr__
     return html
 
-def collect(date):
+def collect(date, day):
 
     start = timeit.default_timer()
     default_html = get_html(URL)
-
-    try:
-        week_html = re.search('<tr>.*?' + date + '.*?</tr>', default_html).group(0)
-    except AttributeError:
-        print 'Error!\nCould not find current day/week. Usage in weekend is currently not supported.'
-        exit()
-
-    week_days = []
-    for d in re.findall('>[0-9]+<', week_html):
-        week_days.append(d[1:-1])
-    day = week_days.index(date)
-    post_week = re.search('value=".*?"', week_html).group(0)[7:-1]
-    # print 'Date of Month: %s\nPost Week: %s\nWeek Day Index: %s\n' % \
-    #       (date, post_week, day)
 
     post_rooms = ""
     rooms = []
@@ -57,7 +43,7 @@ def collect(date):
     post = get_html(ROOM_URL, data=data).encode('ascii', 'ignore')
     not_found = []
     found = []
-    room_data = {'collect': [datetime.datetime.now().strftime('%b %d, %Y'), date, day, post_week]}
+    room_data = {'collect': {'collected_on': datetime.datetime.now().strftime('%b %d, %Y'), 'collected_week_of': date}}
     for room in rooms:
         room_regex = ('\"%s":"<table.*?table>' % room)
         try:
@@ -82,7 +68,7 @@ def collect(date):
                             rows = int(re.search('rowspan=\'.*?\'', days[k]).group(0)[9:-1])
                             name = re.search('>.*?<', days[k]).group(0)[1:-1]
                             count = 0
-                            for j in range(7):
+                            for j in range(k):
                                 if room_data[room][j][i]:
                                     count += 1
                             for l in range(rows):
@@ -183,12 +169,12 @@ def collect(date):
 #     return timeit.default_timer() - start
 
 
-def find_avail_rooms(room_data, current_time_number):
+def find_avail_rooms(room_data, current_time_number, day):
     room_data.pop('collect')
     avail_rooms = []
     for room, data in room_data.iteritems():
         counter = 0
-        while not data[0][current_time_number + counter]:           # FIND DAY
+        while not data[day][current_time_number + counter]:           # FIND DAY
             if current_time_number + counter == 47:
                 break
             counter += 1
@@ -216,7 +202,6 @@ def display(sorted_list, current_time_block):
 
 def choose_time(time):
     current_time = ['00', '00']
-
     if time == '':
         current_time = datetime.datetime.now().strftime('%H:%M').split(':')
     elif len(time) <= 2:
@@ -272,23 +257,27 @@ def run(time=''):
     try:
         with open('room_data.json') as g:
             data = json.load(g)
-            print 'JSON stored date: %s' % data['collect'][0]
-            json_date = datetime.datetime.strptime(data['collect'][0], '%b %d, %Y')
+            print 'JSON stored date: %s' % data['collect']['collected_on']
+            json_date = datetime.datetime.strptime(data['collect']['collected_on'], '%b %d, %Y')
     except:
         pass
 
+    date = datetime.datetime.now().strftime('%Y-%m-%d')
+    day = (int(datetime.datetime.now().strftime('%w'))-1) % 7
+
     if not json_date or (json_date + datetime.timedelta(days=1)).date() <= datetime.datetime.now().date():
         print 'The data you have is outdated.\nUpdating data ...',
-        date = str(datetime.datetime.now().date().day)
-        t = collect(date)
+
+        t = collect(date, day)
         with open('room_data.json') as g:
             data = json.load(g)
         print 'done! Took %.2fs' % t
-        print 'New JSON stored date: %s' % data['collect'][0]
+        print 'New JSON stored date: %s' % data['collect']['collected_on']
+
     time = choose_time(time)
-    avail_rooms = find_avail_rooms(data, time[0])
+    avail_rooms = find_avail_rooms(data, time[0], day)
     display(avail_rooms, time[1:])
 
 
 if __name__ == '__main__':
-    run(time='12')
+    run(time='')
