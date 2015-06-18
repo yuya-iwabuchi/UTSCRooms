@@ -81,18 +81,24 @@ def collect(date, day):
     return timeit.default_timer() - start
 
 
+
 def find_avail_rooms(room_data, current_time_number, day):
     room_data.pop('collect')
     avail_rooms = []
     for room, data in room_data.iteritems():
+        no_class = False
         counter = 0
         while not data[day][current_time_number + counter]:           # FIND DAY
             if current_time_number + counter == 47:
+                no_class = True
                 break
             counter += 1
 
         if counter != 0:
-            avail_rooms.append([room, counter])
+            if no_class:
+                avail_rooms.append([room, counter, None])
+            else:
+                avail_rooms.append([room, counter, data[day][current_time_number + counter]])
     sorted_list = avail_rooms[:]
     sorted_list.sort(key=lambda x: x[1])
     sorted_list.reverse()
@@ -100,16 +106,17 @@ def find_avail_rooms(room_data, current_time_number, day):
 
 
 def display(sorted_list, current_time_block):
-
-    print 'Currently Available Rooms:\n%-9s|%13s' % ('Room', 'Next Class')
-    print '---------|-------------'
+    print 'Currently Available Rooms:'
+    print '%-9s|%13s | %30s' % ('', 'Available', '')
+    print '%-9s|%13s | %-30s' % ('Room', 'Until', 'Next Class')
+    print '---------|--------------|----------------------------------'
     for r in sorted_list:
         t = str(int(current_time_block[0]) + r[1]//2 +
                 (int(current_time_block[1])//30 + r[1] % 2) // 2) + \
             ':' + '{0:02}'.format(((int(current_time_block[1])//30 +
             r[1]) % 2) * 30)
 
-        print '%-9s|%13s' % (r[0], t)
+        print '%-9s|%13s - %-30s' % (r[0], t, r[2])
 
 
 def choose_time(time):
