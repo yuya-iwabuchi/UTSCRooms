@@ -23,7 +23,7 @@ def get_html(url, data={}):
         sys.stderr = sys.__stderr__
     return html
 
-def collect(date, day):
+def collect(date):
 
     start = timeit.default_timer()
     default_html = get_html(URL)
@@ -99,6 +99,8 @@ def find_avail_rooms(room_data, current_time_number, day):
                 avail_rooms.append([room, counter, None])
             else:
                 avail_rooms.append([room, counter, data[day][current_time_number + counter]])
+        else:
+            avail_rooms.append([room, counter, data[day][current_time_number + counter]])
     sorted_list = avail_rooms[:]
     sorted_list.sort(key=lambda x: x[1])
     sorted_list.reverse()
@@ -107,16 +109,19 @@ def find_avail_rooms(room_data, current_time_number, day):
 
 def display(sorted_list, current_time_block):
     print 'Currently Available Rooms:'
-    print '%-9s|%13s | %30s' % ('', 'Available', '')
-    print '%-9s|%13s | %-30s' % ('Room', 'Until', 'Next Class')
-    print '---------|--------------|----------------------------------'
+    print '%-9s|%13s  |  %30s' % ('', 'Available', '')
+    print '%-9s|%13s  |  %-30s' % ('Room', 'Until', 'Class')
+    print '---------|---------------|-----------------------------------'
     for r in sorted_list:
-        t = str(int(current_time_block[0]) + r[1]//2 +
-                (int(current_time_block[1])//30 + r[1] % 2) // 2) + \
-            ':' + '{0:02}'.format(((int(current_time_block[1])//30 +
-            r[1]) % 2) * 30)
+        if r[1] != 0:
+            t = str(int(current_time_block[0]) + r[1]//2 +
+                    (int(current_time_block[1])//30 + r[1] % 2) // 2) + \
+                ':' + '{0:02}'.format(((int(current_time_block[1])//30 +
+                r[1]) % 2) * 30)
+        else:
+            t = 'N/A'
 
-        print '%-9s|%13s - %-30s' % (r[0], t, r[2])
+        print '%-9s|%13s  |  %-30s' % (r[0], t, r[2])
 
 
 def choose_time(time):
@@ -171,7 +176,7 @@ def choose_time(time):
     return [current_time_number] + current_time_block
 
 
-def run(time=''):
+def run(time='', day=-1):
     json_date, data = None, None
     try:
         with open('room_data.json') as g:
@@ -182,21 +187,24 @@ def run(time=''):
         pass
 
     date = datetime.datetime.now().strftime('%Y-%m-%d')
-    day = (int(datetime.datetime.now().strftime('%w'))-1) % 7
+    if day == -1:
+        day = (int(datetime.datetime.now().strftime('%w'))-1) % 7
 
     if not json_date or (json_date + datetime.timedelta(days=1)).date() <= datetime.datetime.now().date():
         print 'The data you have is outdated.\nUpdating data ...',
 
-        t = collect(date, day)
+        t = collect(date)
         with open('room_data.json') as g:
             data = json.load(g)
         print 'done! Took %.2fs' % t
         print 'New JSON stored date: %s' % data['collect']['collected_on']
 
+    print 'Day of Week: %i [0=Mon, 6=Sun]' % day
     time = choose_time(time)
+
     avail_rooms = find_avail_rooms(data, time[0], day)
     display(avail_rooms, time[1:])
 
 
 if __name__ == '__main__':
-    run(time='')
+    run(time='', day=-1)
