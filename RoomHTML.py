@@ -102,7 +102,7 @@ def find_avail_rooms(room_data, current_time_number, day):
         else:
             avail_rooms.append([room, counter, data[day][current_time_number + counter]])
     sorted_list = avail_rooms[:]
-    sorted_list.sort(key=lambda x: x[1])
+    sorted_list.sort(key=lambda x: x[0])
     sorted_list.reverse()
     return sorted_list
 
