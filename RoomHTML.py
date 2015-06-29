@@ -38,7 +38,7 @@ def collect(date):
     post_rooms = post_rooms[:-1]
 
     data = {'room': post_rooms,
-            'day': '2015-06-15'}
+            'day': date}
 
     post = get_html(ROOM_URL, data=data).encode('ascii', 'ignore')
     not_found = []
