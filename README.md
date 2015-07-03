@@ -3,6 +3,8 @@ UTSCRooms
 
 Simply checks available rooms within UTSC and finds out when it is available until.
 
+[Demo](http://rooms.kujira.ca/) powered by Django
+
 ##Current Usage
 
 Directly execute the script or import and call `run()` function which will check the available rooms and displays it.  
