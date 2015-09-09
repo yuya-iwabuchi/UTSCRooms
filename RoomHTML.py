@@ -55,11 +55,15 @@ def collect(date):
             not_found.append(room)
             continue
         data = re.findall('<tr>.*?tr>', data, re.DOTALL)
-        for i in range(48):
+        starting_time = re.search("[0-9]{2}:[0-9]{2}", data[1]).group(0)
+        offset = int(starting_time[0:2])*2 + (1 if starting_time[3:5] == "30" else 0)
+
+        for i in range(len(data)-1):
             if i == 0:
                 for day in re.findall('<th>.*?<\\\\/th>', data[i], re.DOTALL):
                     if len(day) > 10:
                         room_data[room].append([day[4:-6]] + [None]*47)
+                room_data['collect']['starting_time'] = starting_time
             else:
                 if 'rowspan' in data[i]:
                     days = re.findall('<td.*?<\\\\/td>', data[i], re.DOTALL)
@@ -70,10 +74,10 @@ def collect(date):
                             name = re.search('>.*?<', days[k]).group(0)[1:-1]
                             count = 0
                             for j in range(k):
-                                if room_data[room][j][i]:
+                                if room_data[room][j][i+offset]:
                                     count += 1
                             for l in range(rows):
-                                room_data[room][(k - 1) + count - same_time][i+l] = name
+                                room_data[room][(k - 1) + count - same_time][i+l+offset] = name
                             same_time += 1
 
     with open('room_data.json', 'w') as f:
@@ -189,7 +193,6 @@ def run(time='', day=-1):
     date = datetime.datetime.now().strftime('%Y-%m-%d')
     if day == -1:
         day = (int(datetime.datetime.now().strftime('%w'))-1) % 7
-
     if not json_date or (json_date + datetime.timedelta(days=1)).date() <= datetime.datetime.now().date():
         print 'The data you have is outdated.\nUpdating data ...',
 
@@ -207,4 +210,4 @@ def run(time='', day=-1):
 
 
 if __name__ == '__main__':
-    run(time='', day=-1)
+    run(time='8', day=-1)
