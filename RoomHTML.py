@@ -195,7 +195,7 @@ def run(time='', day=-1):
         day = (int(datetime.datetime.now().strftime('%w'))-1) % 7
     if not json_date or (json_date + datetime.timedelta(days=1)).date() <= datetime.datetime.now().date():
         print 'The data you have is outdated.\nUpdating data ...',
-
+        os.rename('room_data.json', 'room_data'+datetime.datetime.strftime(json_date, "%Y%m%d")+'.json')
         t = collect(date)
         with open('room_data.json') as g:
             data = json.load(g)
