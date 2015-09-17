@@ -63,7 +63,7 @@ def collect(date):
             if i == 0:
                 for day in re.findall('<th>.*?<\\\\/th>', data[i], re.DOTALL):
                     if len(day) > 10:
-                        room_data[room].append([day[4:-6]] + [None]*47)
+                        room_data[room].append([day[4:-6]] + [None]*48)
             else:
                 if 'rowspan' in data[i]:
                     days = re.findall('<td.*?<\\\\/td>', data[i], re.DOTALL)
@@ -93,7 +93,7 @@ def find_avail_rooms(room_data, current_time_number, day):
         no_class = False
         counter = 0
         while not data[day][current_time_number + counter]:           # FIND DAY
-            if current_time_number + counter == 47:
+            if current_time_number + counter == 48:
                 no_class = True
                 break
             counter += 1
