@@ -85,26 +85,25 @@ def collect(date):
     return timeit.default_timer() - start
 
 
-
 def find_avail_rooms(room_data, current_time_number, day):
     room_data.pop('collect')
     avail_rooms = []
     for room, data in room_data.iteritems():
-        no_class = False
+	no_class = False
         counter = 0
         while not data[day][current_time_number + counter]:           # FIND DAY
             if current_time_number + counter == 48:
-                no_class = True
+		no_class = True
                 break
             counter += 1
 
-        if counter != 0:
+	if counter != 0:
             if no_class:
                 avail_rooms.append([room, counter, None])
             else:
                 avail_rooms.append([room, counter, data[day][current_time_number + counter]])
-        else:
-            avail_rooms.append([room, counter, data[day][current_time_number + counter]])
+	else:
+	    avail_rooms.append([room, counter, data[day][current_time_number + counter]])
     sorted_list = avail_rooms[:]
     sorted_list.sort(key=lambda x: x[0])
     sorted_list.reverse()
@@ -112,23 +111,25 @@ def find_avail_rooms(room_data, current_time_number, day):
 
 
 def display(sorted_list, current_time_block):
-    print 'Currently Available Rooms:'
-    print '%-9s|%13s  |  %30s' % ('', 'Available', '')
-    print '%-9s|%13s  |  %-30s' % ('Room', 'Until', 'Class')
-    print '---------|---------------|-----------------------------------'
+    output = "<style>table {border-collapse: collapse;}table, th, td {border: 1px solid black;padding: 2px 10px;}</style>"
+    output += 'Currently Available Rooms:<table>'
+    output += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % ('Room', 'Available Until', 'Next Class')
+    # output += '<tr><td>%-9s</td><td>%13s  </td><td>  %30s</td></tr>' % ('Room', 'Until', 'Next Class')
+    # output += '---------|---------------|-----------------------------------<br>'
     for r in sorted_list:
-        if r[1] != 0:
+	if r[1] != 0:
             t = str(int(current_time_block[0]) + r[1]//2 +
                     (int(current_time_block[1])//30 + r[1] % 2) // 2) + \
                 ':' + '{0:02}'.format(((int(current_time_block[1])//30 +
                 r[1]) % 2) * 30)
-        else:
-            t = 'N/A'
-
-        print '%-9s|%13s  |  %-30s' % (r[0], t, r[2])
+	else:
+	    t = 'N/A'
+        output += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % (r[0], t, r[2])
+    return output + "</table>"
 
 
 def choose_time(time):
+    output = ""
     current_time = ['00', '00']
     if time == '':
         current_time = datetime.datetime.now().strftime('%H:%M').split(':')
@@ -136,78 +137,91 @@ def choose_time(time):
         try:
             current_time = [str(int(time)), '00']
         except:
-            print 'Invalid Input'
+            output += 'Invalid Input<br>'
             exit()
     elif len(time) == 3:
         if ':' in time:
-            print 'Invalid Input'
+            output += 'Invalid Input<br>'
             exit()
         try:
             current_time = [str(int(time[0])), '{0:02}'.format(int(time[1:3]))]
         except:
-            print 'Invalid Input'
+            output += 'Invalid Input<br>'
             exit()
     elif len(time) == 4:
         if ':' in time:
             try:
                 current_time = [str(int(time[0])), '{0:02}'.format(int(time[1:3]))]
             except:
-                print 'Invalid Input'
+                output += 'Invalid Input<br>'
                 exit()
         else:
             try:
                 current_time = [str(int(time[0:2])), '{0:02}'.format(int(time[2:4]))]
             except:
-                print 'Invalid Input'
+                output += 'Invalid Input<br>'
                 exit()
     elif len(time) == 5:
         if ':' in time:
             try:
                 current_time = [str(int(time[0:2])), '{0:02}'.format(int(time[3:5]))]
             except:
-                print 'Invalid Input'
+                output += 'Invalid Input<br>'
                 exit()
         else:
-            print 'Invalid Input'
+            output += 'Invalid Input<br>'
             exit()
     else:
-        print 'Invalid Input'
+        output += 'Invalid Input<br>'
         exit()
     current_time_block = [current_time[0], '{0:02}'.format(int(current_time[1])//30 * 30)]
-    print('Time: %s:%s\nBlock Time: %s:%s\n' % (current_time[0], current_time[1],
+    output +=('Time: %s:%s<br>Block Time: %s:%s<br>' % (current_time[0], current_time[1],
                                                 current_time_block[0], current_time_block[1]))
     current_time_number = (int(current_time_block[0]))*2 + int(current_time_block[1])//30 + 1
-    return [current_time_number] + current_time_block
+    return [current_time_number] + current_time_block + [output]
 
 
 def run(time='', day=-1):
+    output = ""
     json_date, data = None, None
     try:
         with open('room_data.json') as g:
             data = json.load(g)
-            print 'JSON stored date: %s' % data['collect']['collected_on']
+            output += 'JSON stored date: %s<br>' % data['collect']['collected_on']
             json_date = datetime.datetime.strptime(data['collect']['collected_on'], '%b %d, %Y')
     except:
         pass
 
     date = datetime.datetime.now().strftime('%Y-%m-%d')
     if day == -1:
-        day = (int(datetime.datetime.now().strftime('%w'))-1) % 7
+	day = (int(datetime.datetime.now().strftime('%w'))-1) % 7
+    elif day > 6:
+	output += 'Invalid Input<br>'
+        exit()
+
     if not json_date or (json_date + datetime.timedelta(days=1)).date() <= datetime.datetime.now().date():
-        print 'The data you have is outdated.\nUpdating data ...',
-        os.rename('room_data.json', 'room_data'+datetime.datetime.strftime(json_date, "%Y%m%d")+'.json')
+        output += 'The data you have is outdated.<br>Updating data ... '
+        
+        try:
+            os.rename('room_data.json', 'history/room_data'+datetime.datetime.strftime(json_date, "%Y%m%d")+'.json')
+        except:
+            pass
+
         t = collect(date)
         with open('room_data.json') as g:
             data = json.load(g)
-        print 'done! Took %.2fs' % t
-        print 'New JSON stored date: %s' % data['collect']['collected_on']
-
-    print 'Day of Week: %i [0=Mon, 6=Sun]' % day
+        output += 'done! Took %.2fs<br>' % t
+        output += 'New JSON stored date: %s<br>' % data['collect']['collected_on']
+    
+    output += 'Day of week: %i [0=Mon, 6=Sun]<br>' % day
     time = choose_time(time)
-
+    
+    output += time[3]
     avail_rooms = find_avail_rooms(data, time[0], day)
-    display(avail_rooms, time[1:])
+    output += display(avail_rooms, time[1:3])
+    return output
 
 
 if __name__ == '__main__':
     run(time='', day=-1)
+
