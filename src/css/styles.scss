@@ -1,0 +1,22 @@
+
+// h1, h2, h3, h4, h5, h6 {
+//   font-family: 'Open Sans', sans-serif;
+// }
+
+// div, span {
+//   font-family: 'Roboto', sans-serif;
+// }
+
+body {
+  margin: 0;
+  font-family: 'Open Sans', sans-serif;
+
+  #root > div {
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  @import './scss/header-container.scss';
+  @import './scss/map-container.scss';
+
+}
