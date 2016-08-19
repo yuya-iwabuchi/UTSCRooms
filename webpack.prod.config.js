@@ -7,6 +7,7 @@ module.exports = {
   devtool: 'source-map',
   context: path.join(__dirname, 'src'),
   entry: [
+    'babel-polyfill',
     './index'
   ],
   output: {
@@ -30,7 +31,7 @@ module.exports = {
         exclude: /node_modules/,
         query: {
           presets: ['es2015', 'stage-0', 'react'],
-        }
+        },
       },
       {
         test: /\.js$/,
@@ -46,8 +47,8 @@ module.exports = {
         loaders: [ 'style-loader', 'css-loader', 'sass-loader' ]
       },
       {
-        test: /\.(png|jpg|woff|woff2|eot|ttf|svg)$/,
-        loader: 'url-loader'
+        test: /\.(png|jpg)$/,
+        loader: 'file-loader'
       },
     ],
   },

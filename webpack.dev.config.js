@@ -5,11 +5,12 @@ var ENV = process.env.ENV = process.env.NODE_ENV = 'development';
 
 module.exports = {
   context: path.join(__dirname, 'src'),
-  devtool: 'eval',
   entry: [
+    'whatwg-fetch',
     'webpack-dev-server/client?http://0.0.0.0:8080',
     'webpack/hot/only-dev-server',
-    './index'
+    'babel-polyfill',
+    './index',
   ],
   output: {
     path: path.join(__dirname, 'dist'),
@@ -23,7 +24,7 @@ module.exports = {
         'ENV': JSON.stringify(ENV),
         'NODE_ENV': JSON.stringify(ENV)
       }
-    }),
+    })
   ],
   module: {
     loaders: [
@@ -38,7 +39,12 @@ module.exports = {
         exclude: /node_modules/,
         query: {
           presets: ['es2015', 'stage-0', 'react'],
-        }
+          'env': {
+            'development': {
+              'presets': ['react-hmre'],
+            },
+          },
+        },
       },
       {
         test: /\.js$/,
@@ -54,17 +60,19 @@ module.exports = {
         loaders: [ 'style-loader', 'css-loader', 'sass-loader' ]
       },
       {
-        test: /\.(png|jpg|woff|woff2|eot|ttf|svg)$/,
-        loader: 'url-loader'
+        test: /\.(png|jpg)$/,
+        loader: 'file-loader'
       },
     ],
-    devServer: {
-      host: '0.0.0.0',
-      port: 8080,
-      historyApiFallback: true,
-    },
-    resolveLoader: {
-      root: path.join(__dirname, 'node_modules')
+  },
+  devServer: {
+    host: '0.0.0.0',
+    port: 8080,
+    historyApiFallback: true,
+  },
+  resolve: {
+    alias: {
+      ie: 'component-ie',
     },
   },
 };
