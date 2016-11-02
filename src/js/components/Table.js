@@ -19,8 +19,8 @@ class Table extends Component {
     this.sort = this.sort.bind(this);
 
     this.state = {
-      sortBy: '',
-      sortOrder: '',
+      sortBy: 'time',
+      sortOrder: 'desc',
     };
   }
 
@@ -49,8 +49,8 @@ class Table extends Component {
     const { sortBy, sortOrder } = this.state;
     const sortRooms = (a, b) => {
       if (a.roomId === b.roomId) return 0;
-      else if (sortOrder === 'asc') return (a.roomId > b.roomId) ? -1 : 1;
-      return (a.roomId < b.roomId) ? -1 : 1;
+      else if (sortOrder === 'asc') return (a.roomId > b.roomId) ? 1 : -1;
+      return (a.roomId < b.roomId) ? 1 : -1;
     };
 
     const sortTime = (a, b) => {
