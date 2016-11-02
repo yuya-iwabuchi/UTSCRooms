@@ -3,7 +3,7 @@ UTSCRooms
 
 [Demo](https://utscrooms.js.org/)
 
-Simplify the methods for students at University of Toronto Scarborough to find empty classrooms.
+A web application that simplifies the method for students to find empty classrooms at University of Toronto Scarborough.
 
 Technology
 ===
