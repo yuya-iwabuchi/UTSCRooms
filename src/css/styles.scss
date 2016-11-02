@@ -9,14 +9,24 @@
 
 body {
   margin: 0;
-  font-family: 'Open Sans', sans-serif;
+  @import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300,400|Roboto:300,400');
+  font-family: 'Roboto', sans-serif;
+  background: #e2e1e0;
 
   #root > div {
     overflow: hidden;
     height: 100vh;
+
+    .main-container {
+      width: 100vw;
+      height: 100vh;
+      box-sizing: border-box;
+    }
   }
 
   @import './scss/header-container.scss';
   @import './scss/map-container.scss';
+  @import './scss/list-container.scss';
+  @import './scss/_room-marker.scss';
 
 }

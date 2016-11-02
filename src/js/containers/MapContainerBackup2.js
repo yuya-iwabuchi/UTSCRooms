@@ -1,12 +1,10 @@
 /* global L */
 
 import React, { PropTypes, Component } from 'react';
-import GoogleMap from 'google-map-react';
+import { Map, TileLayer } from 'react-leaflet';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
-import * as formatTime from '../constants/timeFormat';
 
 import * as roomsActionsCreator from '../actions/rooms';
 import * as timeActionsCreator from '../actions/time';
@@ -27,7 +25,6 @@ class MapContainer extends Component {
   constructor(props) {
     super(props);
 
-    this.onChildClick = this.onChildClick.bind(this);
     this.updateTime = this.updateTime.bind(this);
   }
 
@@ -36,11 +33,6 @@ class MapContainer extends Component {
     this.updateTime();
     api.getRoomList(roomsActions);
     // setInterval(this.updateTime, 1000);
-  }
-
-  onChildClick(key, childProps) {
-    const { roomsActions } = this.props;
-    roomsActions.setCurrentRoom(childProps.roomId);
   }
 
   updateTime() {
@@ -58,17 +50,18 @@ class MapContainer extends Component {
   render() {
     const { rooms, time } = this.props;
 
-    const position = { lat: 43.784606, lng: -79.186933 };
-    const apiKey = 'AIzaSyDuJqmOrLGdC78AtELhhxFaSoCTspWDBWY';
+    const position = [43.784606, -79.186933];
+    const accessToken = 'pk.eyJ1Ijoia3VqaXJhIiwiYSI6ImNpcnV6bjkybDBoejl0Mm5reGducWRvYmQifQ.44mVSJwGrw5PdQvmZV0hig'; // eslint-disable-line
+    const id = 'kujira.14c5e80d';
     return (
-      <GoogleMap
-        bootstrapURLKeys={{
-          apiKey,
-        }}
-        defaultCenter={position}
-        defaultZoom={17}
-        onChildClick={this.onChildClick}
-      >
+      <Map center={position} zoom={17} className="map-container">
+        <TileLayer
+          url={`https://api.tiles.mapbox.com/v4/${id}/{z}/{x}/{y}.png?access_token=${accessToken}`}
+          // url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          maxZoom={20}
+          minZoom={17}
+        />
         {
           Object.keys(rooms.roomAvails).map(roomId => {
             const roomInfo = roomId.split('-');
@@ -77,31 +70,13 @@ class MapContainer extends Component {
             if (locations[buildingId]) {
               if (locations[buildingId].rooms[`${buildingId}${roomNumber}`]) {
                 const room = locations[buildingId].rooms[`${buildingId}${roomNumber}`];
-                let available = false;
-                let availUntil = 'N/A'; // eslint-disable-line
-
-                if (rooms.roomAvails[roomId][time.currentSlot]) {
-                  if (rooms.roomAvails[roomId][time.currentSlot][time.day] === '') {
-                    available = true;
-                    let currentSlot = formatTime.nextSlot(time.currentSlot);
-                    while (
-                      rooms.roomAvails[roomId][currentSlot] &&
-                      rooms.roomAvails[roomId][currentSlot][time.day] === ''
-                    ) {
-                      currentSlot = formatTime.nextSlot(currentSlot);
-                    }
-                    availUntil = formatTime.formatSlot(currentSlot);
-                  }
-                }
-
                 return (
                   <RoomMarker
                     key={roomId}
-                    lat={room.lat}
-                    lng={room.lon}
                     roomId={roomId}
-                    available={available}
-                    selected={rooms.currentRoom === roomId}
+                    center={[room.lat, room.lon]}
+                    avails={rooms.roomAvails[roomId]}
+                    time={time}
                   />
                 );
               }
@@ -109,7 +84,7 @@ class MapContainer extends Component {
             return null;
           })
         }
-      </GoogleMap>
+      </Map>
     );
   }
 }

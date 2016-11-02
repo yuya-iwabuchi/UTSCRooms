@@ -1,20 +1,5 @@
-import React, { Component } from 'react';
-import '../../css/styles.scss';
-
-import DevTools from '../components/DevTools';
-import Header from '../components/Header';
-import MapContainer from './MapContainer';
-
-class AppContainer extends Component {
-  render() {
-    return (
-      <div>
-      <DevTools />
-        <Header />
-        <MapContainer />
-      </div>
-    );
-  }
+if (process.env.NODE_ENV === 'production') {
+  module.exports = require('./AppContainer.prod');
+} else {
+  module.exports = require('./AppContainer.dev');
 }
-
-export default AppContainer;

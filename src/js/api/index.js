@@ -13,7 +13,8 @@ const parseRoomAvail = (response, roomsActions) => {
       $(timeRow).find('td').each((i, timeColumn) => {
         const parsedColumn = $(timeColumn);
         if (i === 0) {
-          rowTime = parseInt(parsedColumn.text().replace(':', ''), 10);
+          const rowTimeString = (parsedColumn.text().split(':'));
+          rowTime = (parseInt(rowTimeString[0], 10) * 60) + parseInt(rowTimeString[1], 10);
           if (!roomAvails[room][rowTime]) {
             roomAvails[room][rowTime] = {
               1: '',
