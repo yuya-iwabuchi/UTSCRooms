@@ -101,7 +101,8 @@ class Table extends Component {
                 slotTime += 30;
               }
               availUntil = slotTime;
-              currentOrNextClass = rooms.roomAvails[roomId][slotTime][time.day];
+              currentOrNextClass = rooms.roomAvails[roomId][slotTime] ?
+                rooms.roomAvails[roomId][slotTime][time.day] : 'None';
             }
           }
 

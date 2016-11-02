@@ -36,8 +36,8 @@ class ListContainer extends Component {
 
     const now = new Date();
 
-    this.props.timeActions.setTime(1043);
-    // this.props.timeActions.setTime(now.getHours() * 60 + now.getMinutes());
+    // this.props.timeActions.setTime(1043);
+    this.props.timeActions.setTime(now.getHours() * 60 + now.getMinutes());
     this.props.timeActions.setDay((now.getDay() === 0 ? 7 : now.getDay()));
   }
 
