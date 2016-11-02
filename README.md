@@ -9,7 +9,7 @@ Technology
 ===
 Initially, naive me wrote a crawler in python, and hosted a HTML page using Django. This was very inefficient solution, and had to be hosted somewhere.  
 To make things interested, I've decided to do all tasks on Javascript, which allows no infrastructure required on my end.
-Currently, it's using React + ES6 syntax for the interface, and YQL is used for data crawling.
+Currently, it's using React + ES6 syntax for the interface, and Yahoo! Query Language(YQL) is used to overcome cross-origin issues when crawling the data.
 
 
 Background
