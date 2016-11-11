@@ -2,7 +2,7 @@
   width: 90vw;
   height: calc(100% - 10vh);
   margin: 5vh 5vw;
-  padding: 3vh 5vw 5vh;
+  padding: 3vh 5vw 3vh;
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
@@ -21,6 +21,8 @@
     margin: 0;
     height: 100%;
     font-size: calc(15px + 1vmax);
+    flex-flow: column-reverse nowrap;
+    padding: 3vh 5vw 2vh;
 
   }
 
@@ -120,6 +122,10 @@
 
           &:hover {
             background-color: rgba(135, 206, 250, 0.5);
+          }
+
+          &:last-child {
+            border-bottom: solid 0.5px gray;
           }
 
 

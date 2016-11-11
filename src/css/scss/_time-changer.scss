@@ -4,15 +4,27 @@
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
-    margin-bottom: 2vh;
+    margin: 0 0 2vh;
+
+    @media only screen and (max-width: 1000px) {
+      margin: 2vh 0 0;
+    }
 
   .time {
     font-size: calc(25px + 1vmax);
+
+    @media only screen and (max-width: 1000px) {
+      font-size: calc(40px + 1vmax);
+    }
   }
 
   input.time-picker[type=range] {
     width: 300px;
     margin: 3vh 0;
+
+    @media only screen and (max-width: 1000px) {
+      margin: 4vh 0 5vh;
+    }
   }
   /*###################################*/
   /*###########Responsive Range########*/
