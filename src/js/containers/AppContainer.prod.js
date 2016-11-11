@@ -1,3 +1,4 @@
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import React, { Component } from 'react';
 
 import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
@@ -21,9 +22,17 @@ class AppContainer extends Component {
       <div>
         <Header />
         <MuiThemeProvider muiTheme={getMuiTheme(darkBaseTheme)}>
-          <div className="main-container">
-            <ListContainer />
-          </div>
+          <ReactCSSTransitionGroup
+            className="main-container"
+            transitionName="list-appear"
+            transitionAppear
+            transitionAppearTimeout={50000}
+            transitionEnter={false}
+            transitionLeave={false}
+            component="div"
+          >
+            <ListContainer key="list-container" />
+          </ReactCSSTransitionGroup>
         </MuiThemeProvider>
       </div>
     );

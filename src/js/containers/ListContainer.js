@@ -1,17 +1,15 @@
-/* global L */
-
 import React, { PropTypes, Component } from 'react';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
-import * as timeFormat from '../constants/timeFormat';
 
 import * as roomsActionsCreator from '../actions/rooms';
 import * as timeActionsCreator from '../actions/time';
 
 import * as api from '../api';
 
+
+import TimeChanger from '../components/TimeChanger';
 import Table from '../components/Table';
 
 
@@ -33,12 +31,6 @@ class ListContainer extends Component {
   componentWillMount() {
     const { roomsActions } = this.props;
     api.getRoomList(roomsActions);
-
-    const now = new Date();
-
-    // this.props.timeActions.setTime(1043);
-    this.props.timeActions.setTime(now.getHours() * 60 + now.getMinutes());
-    this.props.timeActions.setDay((now.getDay() === 0 ? 7 : now.getDay()));
   }
 
   onChildClick(key, childProps) {
@@ -51,12 +43,13 @@ class ListContainer extends Component {
   }
 
   render() {
-    const { rooms, time } = this.props;
+    const { rooms, time, timeActions } = this.props;
     return (
       <div className="list-container">
-        <div className="time-changer">
-          {timeFormat.timeToString(time.time)}
-        </div>
+        <TimeChanger
+          time={time}
+          timeActions={timeActions}
+        />
         <Table
           rooms={rooms}
           time={time}

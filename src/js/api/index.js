@@ -49,7 +49,7 @@ const parseRoomAvail = (response, roomsActions) => {
                 };
               }
               roomAvails[room][currentTime][i + padding - rowAddedCount] = parsedColumn.text();
-              currentTime = currentTime % 100 === 30 ? currentTime + 70 : currentTime + 30;
+              currentTime += 30;
               // console.log(currentTime)
               loopCount -= 1;
             }

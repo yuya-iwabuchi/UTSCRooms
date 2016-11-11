@@ -47,14 +47,16 @@ class Table extends Component {
 
   sort(roomsList) {
     const { sortBy, sortOrder } = this.state;
-    const sortRooms = (a, b) => {
+    const sortRoomsGeneral = (a, b, order) => {
       if (a.roomId === b.roomId) return 0;
-      else if (sortOrder === 'asc') return (a.roomId > b.roomId) ? 1 : -1;
+      else if (order === 'asc') return (a.roomId > b.roomId) ? 1 : -1;
       return (a.roomId < b.roomId) ? 1 : -1;
     };
 
+    const sortRooms = (a, b) => sortRoomsGeneral(a, b, sortOrder);
+
     const sortTime = (a, b) => {
-      if (a.availUntil === b.availUntil) return 0;
+      if (a.availUntil === b.availUntil) return sortRoomsGeneral(a, b, 'asc');
       else if (a.availUntil === 'N/A') return sortOrder === 'asc' ? -1 : 1;
       else if (b.availUntil === 'N/A') return sortOrder === 'asc' ? 1 : -1;
       else if (sortOrder === 'asc') return (a.availUntil > b.availUntil) ? 1 : -1;
@@ -78,6 +80,7 @@ class Table extends Component {
 
   render() {
     const { rooms, time } = this.props;
+    const { sortBy, sortOrder } = this.state;
 
     let roomsList = [];
 
@@ -123,22 +126,58 @@ class Table extends Component {
           <div className="thead">
             <div className="th">
               <div className="heading">Room</div>
-              <button className="sorting" name="asc" onClick={this.onSortRooms}>&#9650;</button>
-              <button className="sorting" name="desc" onClick={this.onSortRooms}>&#9660;</button>
+              <button
+                className={`sorting ${sortBy === 'rooms' && sortOrder === 'asc' ? 'active' : ''}`}
+                name="asc"
+                onClick={this.onSortRooms}
+              >
+                &#9650;
+              </button>
+              <button
+                className={`sorting ${sortBy === 'rooms' && sortOrder === 'desc' ? 'active' : ''}`}
+                name="desc"
+                onClick={this.onSortRooms}
+              >
+                &#9660;
+              </button>
             </div>
             <div className="th">
               <div className="heading">Availability</div>
-              <button className="sorting" name="asc" onClick={this.onSortTime}>&#9650;</button>
-              <button className="sorting" name="desc" onClick={this.onSortTime}>&#9660;</button>
+              <button
+                className={`sorting ${sortBy === 'time' && sortOrder === 'asc' ? 'active' : ''}`}
+                name="asc"
+                onClick={this.onSortTime}
+              >
+                &#9650;
+              </button>
+              <button
+                className={`sorting ${sortBy === 'time' && sortOrder === 'desc' ? 'active' : ''}`}
+                name="desc"
+                onClick={this.onSortTime}
+              >
+                &#9660;
+              </button>
             </div>
             <div className="th">
               <div className="heading">Current or Next Class</div>
-              <button className="sorting" name="asc" onClick={this.onSortClass}>&#9650;</button>
-              <button className="sorting" name="desc" onClick={this.onSortClass}>&#9660;</button>
+              <button
+                className={`sorting ${sortBy === 'class' && sortOrder === 'asc' ? 'active' : ''}`}
+                name="asc"
+                onClick={this.onSortClass}
+              >
+                &#9650;
+              </button>
+              <button
+                className={`sorting ${sortBy === 'class' && sortOrder === 'desc' ? 'active' : ''}`}
+                name="desc" onClick={this.onSortClass}
+              >
+                &#9660;
+              </button>
             </div>
           </div>
           <div className="tbody">
           {
+            roomsList.length !== 0 ?
             roomsList.map(room => (
               <div className="tr" key={room.roomId}>
                 <div className="td">{room.roomId}</div>
@@ -148,6 +187,10 @@ class Table extends Component {
                 <div className="td">{room.currentOrNextClass}</div>
               </div>
             ))
+            :
+            <div className="td-fill">
+              <div className="loader" />
+            </div>
           }
           </div>
         </div>

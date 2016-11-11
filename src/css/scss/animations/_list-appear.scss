@@ -1,0 +1,8 @@
+.list-appear-appear {
+  opacity: 0.01;
+}
+
+.list-appear-appear.list-appear-appear-active {
+  opacity: 1;
+  transition: opacity 1000ms ease-in;
+}
