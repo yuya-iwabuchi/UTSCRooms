@@ -40,12 +40,14 @@ class TimeChanger extends Component {
     const now = new Date();
     const hour = now.getHours();
     const minute = now.getMinutes();
-
-    if (hour >= 22) timeActions.setTime(1320);
-    else if (hour <= 8) timeActions.setTime(480);
+    let time;
+    if (hour >= 22) time = 1320;
+    else if (hour <= 8) time = 480;
     else {
-      timeActions.setTime(hour * 60 + minute);
+      time = (hour * 60) + minute;
     }
+    timeActions.setTime(time);
+    this.setState({ tempTime: time });
     timeActions.setDay((now.getDay() === 0 ? 7 : now.getDay()));
     // timeActions.setTime(943);
   }
