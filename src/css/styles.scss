@@ -29,4 +29,8 @@ body {
   @import './scss/list-container.scss';
   @import './scss/_room-marker.scss';
 
+
+  @import "scss/animations/loader";
+  @import "scss/animations/list-appear";
+
 }

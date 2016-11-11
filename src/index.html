@@ -3,11 +3,108 @@
   <head>
     <meta charset="utf-8">
     <title>UTSC Rooms</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-86822202-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+    <style>
+      body {
+        margin: 0;
+        @import url(https://fonts.googleapis.com/css?family=Roboto+Mono:300,400|Roboto:300,400);
+        font-family: 'Roboto', sans-serif;
+        background: #e2e1e0;
+      }
+      .header-container {
+        width: 100vw;
+        height: 6vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(0, 33, 73); // UofT navy blue
+        position: fixed;
+        left: 0;
+        top: 0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      }
+      .header-container  .title {
+        margin: 0;
+        color: white;
+        font-size: 3vh;
+      }
+
+      .loading-container {
+        width: 100vw;
+        height: 94vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+
+      .loader{
+        width: 10vmin;
+        height: 10vmin;
+        border-radius: 100%;
+        position: relative;
+        margin: 0 auto;
+      }
+
+      /* LOADER 1 */
+
+      .loader:before, .loader:after{
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        width: 100%;
+        height: 100%;
+        border-radius: 100%;
+        border: 10px solid transparent;
+        border-top-color: rgb(0, 33, 73);
+      }
+
+      .loader:before{
+        z-index: 100;
+        animation: spin 1s infinite;
+      }
+
+      .loader:after{
+        border: 10px solid #ccc;
+      }
+
+      @keyframes spin{
+        0%{
+          -webkit-transform: rotate(0deg);
+          -ms-transform: rotate(0deg);
+          -o-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+
+        100%{
+          -webkit-transform: rotate(360deg);
+          -ms-transform: rotate(360deg);
+          -o-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="header-container">
+        <h1 class="title">UTSC Rooms</h1>
+      </div>
+      <div class="loading-container">
+        <div class="loader" />
+      </div>
+    </div>
+  </div>
   </body>
 </html>

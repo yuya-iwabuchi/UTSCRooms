@@ -49,7 +49,7 @@ const parseRoomAvail = (response, roomsActions) => {
                 };
               }
               roomAvails[room][currentTime][i + padding - rowAddedCount] = parsedColumn.text();
-              currentTime = currentTime % 100 === 30 ? currentTime + 70 : currentTime + 30;
+              currentTime += 30;
               // console.log(currentTime)
               loopCount -= 1;
             }
@@ -65,7 +65,7 @@ const parseRoomAvail = (response, roomsActions) => {
 };
 
 export const getRoomAvail = (roomList, roomsActions) => {
-  const url = 'http://intranet.utsc.utoronto.ca/intranet2/RegistrarService';
+  const url = 'https://intranet.utsc.utoronto.ca/intranet2/RegistrarService';
 
   let rooms = '';
   roomList.forEach(room => { rooms += `${room},`; });
@@ -128,7 +128,7 @@ const parseRoomList = (response, roomsActions) => {
 };
 
 export const getRoomList = roomsActions => {
-  const url = 'http://www.utsc.utoronto.ca/~registrar/scheduling/room_schd';
+  const url = 'https://www.utsc.utoronto.ca/~registrar/scheduling/room_schd';
   $.ajax({
     url,
     type: 'GET',
