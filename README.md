@@ -24,7 +24,7 @@ Todo
 
 - [x] Implement data crawling
 - [x] Show list
-- [ ] Time picker
+- [x] Time picker
 - [ ] Memoize crawled data, automatic/manual data refresh
 - [ ] Map view with pins
 - [ ] Per room detail page
