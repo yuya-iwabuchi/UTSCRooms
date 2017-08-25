@@ -20,7 +20,7 @@ jQuery.ajax = (function(_ajax){
             // Manipulate options so that JSONP-x request is made to YQL
             
             var yql = "select * from htmlstring where url='" + url + "' AND xpath='*'"; 
-            o.url = "http://query.yahooapis.com/v1/public/yql?q=" +
+            o.url = "https://query.yahooapis.com/v1/public/yql?q=" +
                 encodeURIComponent(yql) +
                 "&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
             
