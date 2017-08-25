@@ -15,3 +15,8 @@ export const setCurrentRoom = currentRoom => ({
   type: types.SET_CURRENT_ROOM,
   currentRoom,
 });
+
+export const setRoomCollecting = collecting => ({
+  type: types.SET_ROOM_COLLECTING,
+  collecting,
+});

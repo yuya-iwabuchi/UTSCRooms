@@ -62,6 +62,7 @@ const parseRoomAvail = (response, roomsActions) => {
   });
   // console.table(roomAvails['IC-220']);
   roomsActions.setRoomAvails(roomAvails);
+  roomsActions.setRoomCollecting(false);
 };
 
 export const getRoomAvail = (roomList, roomsActions) => {
@@ -129,10 +130,24 @@ const parseRoomList = (response, roomsActions) => {
 
 export const getRoomList = roomsActions => {
   const url = 'https://www.utsc.utoronto.ca/~registrar/scheduling/room_schd';
-  $.ajax({
-    url,
-    type: 'GET',
-    success: response => parseRoomList(response, roomsActions),
-  });
+  const retries = 20;
+
+  const tryGettingRoomList = retryCount => {
+    if (retryCount === 0) {
+      roomsActions.setRoomCollecting(false);
+      return;
+    }
+    roomsActions.setRoomCollecting(true);
+    $.ajax({
+      url,
+      type: 'GET',
+      success: response => parseRoomList(response, roomsActions),
+      error: () => {
+        setTimeout(() => tryGettingRoomList(retryCount - 1), 500);
+      },
+    });
+  };
+
+  tryGettingRoomList(retries);
 };
 

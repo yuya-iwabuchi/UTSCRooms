@@ -5,7 +5,7 @@ jQuery.ajax = (function(_ajax){
         hostname = location.hostname,
         exRegex = RegExp(protocol + '//' + hostname),
         YQL = 'http' + (/^https/.test(protocol)?'s':'') + '://query.yahooapis.com/v1/public/yql?callback=?',
-        query = 'select * from html where url="{URL}" and xpath="*"';
+        query = 'select * from htmlstring where url="{URL}" and xpath="*"';
     
     function isExternal(url) {
         return !exRegex.test(url) && /:\/\//.test(url);
@@ -19,18 +19,10 @@ jQuery.ajax = (function(_ajax){
             
             // Manipulate options so that JSONP-x request is made to YQL
             
-            o.url = YQL;
-            o.dataType = 'json';
-            
-            o.data = {
-                q: query.replace(
-                    '{URL}',
-                    url + (o.data ?
-                        (/\?/.test(url) ? '&' : '?') + jQuery.param(o.data)
-                    : '')
-                ),
-                format: 'xml'
-            };
+            var yql = "select * from htmlstring where url='" + url + "' AND xpath='*'"; 
+            o.url = "http://query.yahooapis.com/v1/public/yql?q=" +
+                encodeURIComponent(yql) +
+                "&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
             
             // Since it's a JSONP request
             // complete === success
@@ -41,11 +33,10 @@ jQuery.ajax = (function(_ajax){
             
             o.success = (function(_success){
                 return function(data) {
-                    
                     if (_success) {
                         // Fake XHR callback.
                         _success.call(this, {
-                            responseText: (data.results[0] || '')
+                            responseText: (data.query.results.result || '')
                                 // YQL screws with <script>s
                                 // Get rid of them
                                 .replace(/<script[^>]+?\/>|<script(.|\s)*?\/script>/gi, '')

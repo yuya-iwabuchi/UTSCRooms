@@ -83,6 +83,7 @@ class Table extends Component {
     const { sortBy, sortOrder } = this.state;
 
     let roomsList = [];
+    let roomsListDiv;
 
     Object.keys(rooms.roomAvails).forEach(roomId => {
       const roomInfo = roomId.split('-');
@@ -119,6 +120,32 @@ class Table extends Component {
     });
 
     roomsList = this.sort(roomsList);
+
+    if (roomsList.length === 0) {
+      if (rooms.collecting) {
+        roomsListDiv = (
+          <div className="td-fill">
+            <div className="loader" />
+          </div>
+        );
+      } else {
+        roomsListDiv = (
+          <div className="td-fill">
+            <div>Something went wrong :( <br /> <br /> Please try again later. </div>
+          </div>
+        );
+      }
+    } else {
+      roomsListDiv = roomsList.map(room => (
+        <div className="tr" key={room.roomId}>
+          <div className="td">{room.roomId}</div>
+          <div className="td">
+            {room.availUntil === 'N/A' ? 'N/A' : timeFormat.timeToString(room.availUntil)}
+          </div>
+          <div className="td">{room.currentOrNextClass}</div>
+        </div>
+      ));
+    }
 
     return (
       <div className="table-container">
@@ -176,22 +203,7 @@ class Table extends Component {
             </div>
           </div>
           <div className="tbody">
-          {
-            roomsList.length !== 0 ?
-            roomsList.map(room => (
-              <div className="tr" key={room.roomId}>
-                <div className="td">{room.roomId}</div>
-                <div className="td">
-                  {room.availUntil === 'N/A' ? 'N/A' : timeFormat.timeToString(room.availUntil)}
-                </div>
-                <div className="td">{room.currentOrNextClass}</div>
-              </div>
-            ))
-            :
-            <div className="td-fill">
-              <div className="loader" />
-            </div>
-          }
+            { roomsListDiv }
           </div>
         </div>
       </div>
